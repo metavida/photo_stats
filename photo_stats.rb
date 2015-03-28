@@ -2,6 +2,15 @@
 require 'time'
 require 'ostruct'
 
+def usage
+  puts <<-USAGE
+Compiles (mostly date/time-based) statistics about photos/videos in a folder.
+
+usage: photo_stats.rb directory
+
+USAGE
+end
+
 class PhotoStats
   attr_accessor :photo_dir, :photo_stats
 
@@ -13,13 +22,18 @@ class PhotoStats
     by_taken = stats_by_taken(:day)
     days = by_taken.keys.sort
 
-    last_day = days.last
+    last_day = [days.last, Time.new(Time.now.year, Time.now.month, Time.now.day)].min
     current_day = days.first
 
     no_photos = []
     while current_day <= last_day
       no_photos << current_day if !by_taken.include?(current_day)
-      current_day += 60 * 60 * 24
+
+      next_day = Time.new(current_day.year, current_day.month, current_day.day + 1) rescue nil
+      next_day ||= Time.new(current_day.year, current_day.month + 1, 1) rescue nil
+      next_day ||= Time.new(current_day.year + 1, 1, 1) rescue nil
+      fail if next_day.nil?
+      current_day = next_day
     end
 
     puts no_photos.size
@@ -28,25 +42,27 @@ class PhotoStats
 
   private
 
-  def stats_by_taken_at
-    @photo_details.group_by(&:taken_at)
-  end
-
   def stats_by_taken(granularity)
+    @stats_by_taken ||= {}
+    return @stats_by_taken[granularity] if @stats_by_taken[granularity]
+
     format = case granularity
     when :time
-      ""
+      '%Y-%m-%d %H:%M:%S'
     when :day
       '%Y-%m-%d'
+    when :day_of_week
+      '%u'
     else
-      raise "unhandled"
+      fail "unhandled"
     end
     grouped = @photo_details.group_by do |detail|
       detail[:taken_at] &&
       Time.parse(detail[:taken_at].strftime(format))
     end
     grouped.delete(nil)
-    grouped
+
+    @stats_by_taken[granularity] = grouped
   end
 end
 
@@ -116,12 +132,6 @@ class PhotoDetailGetter
     warn "The given photo dir doesn't exist: #{photo_dir}"
     exit 1
   end
-end
-
-def usage
-  puts <<-USAGE
-usage: photo_stats.rb path_to_photo_dir
-USAGE
 end
 
 case ARGV.size
