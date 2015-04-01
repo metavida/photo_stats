@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'time'
 require 'ostruct'
+require 'yaml'
 
 def usage
   puts <<-USAGE
@@ -55,6 +56,17 @@ class PhotoStats
     report top_10
   end
 
+  def photos_per_month
+    per_month_list  = stats_by_taken(:month)
+    per_month_count = []
+
+    per_month_list.each do |month, photos|
+      per_month_count << [month, photos.count]
+    end
+
+    report per_month_count
+  end
+
   def photos_per_day_of_week
     per_dow_list  = stats_by_taken(:day_of_week)
     per_dow_count = []
@@ -64,6 +76,16 @@ class PhotoStats
     end
 
     report per_dow_count
+  end
+
+  def photos_per_subject
+    per_subject = {}
+    @photo_details.each do |detail|
+      per_subject[detail[:subject]] ||= 0
+      per_subject[detail[:subject]] += 1
+    end
+
+    report per_subject.to_a
   end
 
   private
@@ -84,6 +106,8 @@ class PhotoStats
       '%Y-%m-%d %H:%M:%S'
     when :day
       '%Y-%m-%d'
+    when :month
+      '%Y-%m-01'
     when :day_of_week
       parse = false
       '%A'
@@ -153,14 +177,18 @@ class PhotoDetailGetter
   end
 
   def get_taken_at(filename)
-    Time.parse(filename.gsub(
-      /(\d+)-(\d+)-(\d+) (\d+).(\d+).(\d+)\b.*/,
-      '\1/\2/\3 \4:\5:\6'
-    )) rescue nil
+    match = filename.match(/^(\d+)-(\d+)-(\d+) (\d+).(\d+).(\d+)\b.*/)
+    return nil unless match
+    Time.parse(
+      "#{match[1]}/#{match[2]}/#{match[3]} #{match[4]}:#{match[5]}:#{match[6]}"
+    )
   end
 
   def get_subject(filename)
-    name = filename.match(/([^\-]*\s*-\s*)(\S+)/)[2] rescue ''
+    name = filename.match(/([^\-]*\s+-\s+)([^ \.]+)/)[2] rescue ''
+    @known_subjects ||= YAML.load_file(File.join(File.dirname(__FILE__), 'subjects.yml')) rescue []
+    @known_subjects.include?(name) ?
+      name : nil
   end
 
   def ensure_dir_exists
@@ -173,7 +201,7 @@ end
 case ARGV.size
 when 1
   stats = PhotoStats.new(ARGV[0])
-  stats.photos_per_day_of_week
+  stats.photos_per_month
 else
   usage
 end
