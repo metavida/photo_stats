@@ -55,6 +55,17 @@ class PhotoStats
     report top_10
   end
 
+  def photos_per_day_of_week
+    per_dow_list  = stats_by_taken(:day_of_week)
+    per_dow_count = []
+
+    per_dow_list.each do |dow, photos|
+      per_dow_count << [dow, photos.count]
+    end
+
+    report per_dow_count
+  end
+
   private
 
   def report(table)
@@ -67,19 +78,23 @@ class PhotoStats
     @stats_by_taken ||= {}
     return @stats_by_taken[granularity] if @stats_by_taken[granularity]
 
+    parse = true
     format = case granularity
     when :time
       '%Y-%m-%d %H:%M:%S'
     when :day
       '%Y-%m-%d'
     when :day_of_week
-      '%u'
+      parse = false
+      '%A'
     else
       fail "unhandled"
     end
     grouped = @photo_details.group_by do |detail|
-      detail[:taken_at] &&
-      Time.parse(detail[:taken_at].strftime(format))
+      if detail[:taken_at]
+        detail = detail[:taken_at].strftime(format)
+        parse ? Time.parse(detail) : detail
+      end
     end
     grouped.delete(nil)
 
@@ -158,7 +173,7 @@ end
 case ARGV.size
 when 1
   stats = PhotoStats.new(ARGV[0])
-  stats.photos_per_day
+  stats.photos_per_day_of_week
 else
   usage
 end
