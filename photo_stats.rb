@@ -27,7 +27,7 @@ class PhotoStats
 
     no_photos = []
     while current_day <= last_day
-      no_photos << current_day if !by_taken.include?(current_day)
+      no_photos << [current_day] if !by_taken.include?(current_day)
 
       next_day = Time.new(current_day.year, current_day.month, current_day.day + 1) rescue nil
       next_day ||= Time.new(current_day.year, current_day.month + 1, 1) rescue nil
@@ -36,11 +36,32 @@ class PhotoStats
       current_day = next_day
     end
 
-    puts no_photos.size
-    puts no_photos.join("\n")
+    report no_photos
+  end
+
+  def photos_per_day
+    per_day_list  = stats_by_taken(:day)
+    per_day_count = []
+    top_10 = []
+
+    per_day_list.each do |day, photos|
+      per_day_count << [day, photos.count]
+    end
+
+    top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
+
+    report per_day_count
+
+    report top_10
   end
 
   private
+
+  def report(table)
+    table.each do |row|
+      puts Array(row).inspect
+    end
+  end
 
   def stats_by_taken(granularity)
     @stats_by_taken ||= {}
@@ -137,7 +158,7 @@ end
 case ARGV.size
 when 1
   stats = PhotoStats.new(ARGV[0])
-  stats.days_with_no_photos
+  stats.photos_per_day
 else
   usage
 end
