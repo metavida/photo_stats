@@ -2,6 +2,7 @@
 require 'time'
 require 'ostruct'
 require 'yaml'
+require 'fileutils'
 
 def usage
   puts <<-USAGE
@@ -37,7 +38,7 @@ class PhotoStats
       current_day = next_day
     end
 
-    report no_photos
+    report 'no_photos', no_photos
   end
 
   def photos_per_day
@@ -51,9 +52,9 @@ class PhotoStats
 
     top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
 
-    report per_day_count
+    report 'per_day', per_day_count
 
-    report top_10
+    report 'top_10', top_10
   end
 
   def photos_per_month
@@ -64,7 +65,7 @@ class PhotoStats
       per_month_count << [month, photos.count]
     end
 
-    report per_month_count
+    report 'per_month', per_month_count
   end
 
   def photos_per_day_of_week
@@ -75,7 +76,7 @@ class PhotoStats
       per_dow_count << [dow, photos.count]
     end
 
-    report per_dow_count
+    report 'per_day_of_week', per_dow_count
   end
 
   def photos_per_subject
@@ -85,14 +86,21 @@ class PhotoStats
       per_subject[detail[:subject]] += 1
     end
 
-    report per_subject.to_a
+    report 'per_subject', per_subject.to_a
   end
 
   private
 
-  def report(table)
-    table.each do |row|
-      puts Array(row).inspect
+  def report(filename, table)
+    path = File.expand_path(File.join(
+      File.dirname(__FILE__), 'data', "#{filename}.csv"
+    ))
+    FileUtils.mkdir_p(File.dirname(path))
+
+    File.open(path, 'w') do |file|
+      table.each do |row|
+        file.puts(Array(row).join(','))
+      end
     end
   end
 
@@ -201,7 +209,11 @@ end
 case ARGV.size
 when 1
   stats = PhotoStats.new(ARGV[0])
+  stats.photos_per_subject
+  stats.photos_per_day
+  stats.photos_per_day_of_week
   stats.photos_per_month
+  stats.days_with_no_photos
 else
   usage
 end
