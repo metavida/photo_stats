@@ -27,7 +27,7 @@ class PhotoStats
     last_day = [days.last, Time.new(Time.now.year, Time.now.month, Time.now.day)].min
     current_day = days.first
 
-    no_photos = []
+    no_photos = ['date']
     while current_day <= last_day
       no_photos << [current_day] if !by_taken.include?(current_day)
 
@@ -52,14 +52,14 @@ class PhotoStats
 
     top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
 
-    report 'per_day', per_day_count
+    report 'per_day', [['day', 'count']] + per_day_count
 
-    report 'top_10', top_10
+    report 'top_10', [['day', 'count']] + top_10
   end
 
   def photos_per_month
     per_month_list  = stats_by_taken(:month)
-    per_month_count = []
+    per_month_count = [['month', 'count']]
 
     per_month_list.each do |month, photos|
       per_month_count << [month, photos.count]
@@ -70,7 +70,7 @@ class PhotoStats
 
   def photos_per_day_of_week
     per_dow_list  = stats_by_taken(:day_of_week)
-    per_dow_count = []
+    per_dow_count = [['day', 'count']]
 
     per_dow_list.each do |dow, photos|
       per_dow_count << [dow, photos.count]
@@ -86,7 +86,7 @@ class PhotoStats
       per_subject[detail[:subject]] += 1
     end
 
-    report 'per_subject', per_subject.to_a
+    report 'per_subject', [['subject', 'count']] + per_subject.to_a
   end
 
   private
