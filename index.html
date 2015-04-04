@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>One Year</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.1/nv.d3.min.css" />
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.1/nv.d3.js"></script>
+
+</head>
+<body>
+<h1>Graph</h1>
+<div id="chart"><svg style="width:100%" /></div>
+<script type="text/javascript">
+console.log('JS works!');
+</script>
+
+<script type="text/javascript">
+var gdata=null;
+d3.csv("data/per_day_of_week.csv")
+  .row(function(d) {
+    return {key: d['day'], value: parseInt(d['count'], 10) }
+  })
+  .get(function(error,data) {
+
+  gdata=data;
+
+  nv.addGraph(function() {
+      var chart = nv.models.lineChart()
+            .margin({top: 30, right: 60, bottom: 50, left: 70})
+            //We can set x data accessor to use index. Reason? So the bars all appear evenly spaced.
+            .x(function(d,i) { d = new Date('2015','02',i+2); console.log(d); return d })
+            .y(function(d,i) { return d.value })
+            ;
+
+      //chart.xAxis.tickFormat(function(d) {
+      //  console.log('chart.xAxis.tickFormat');
+      //  console.log(d);
+      //  var dx = data[0].values[d] && data[0].values[d][0] || 0;
+      //  return d3.time.format('%x')(new Date(dx))
+      //});
+      var tickValues=data.map(function(d) { return d.key; });
+      console.log(tickValues);
+      chart.xAxis
+          //.showMaxMin(false)
+          .ticks(8)
+          //.tickValues(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])
+          .tickFormat(function(d) {
+            return d3.time.format('%a')(new Date(d));
+          })
+          .rotateLabels(45)
+          ;
+
+      chart.yAxis
+          .axisLabel('Num Photos')
+          .tickFormat(d3.format(',r'))
+          ;
+
+      d3.select('#chart svg')
+        .datum([{ values: data, key: 'Photos Per DOW', area: true }])
+        .transition()
+        .duration(0)
+        .call(chart)
+        ;
+
+      nv.utils.windowResize(chart.update);
+
+      return chart;
+  });
+
+});
+</script>
+</body>
+</html>
