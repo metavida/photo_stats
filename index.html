@@ -11,13 +11,44 @@
 </head>
 <body>
 <h1>Graph</h1>
-<div id="chart"><svg style="width:100%" /></div>
-<script type="text/javascript">
-console.log('JS works!');
-</script>
+<div id="chart">
+  <svg style="width:100%">
+    <g></g>
+  </svg>
+</div>
 
 <script type="text/javascript">
+
+nv.log = function() {
+  args = [];
+  for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
+  console.log(args);
+}
+
+nv.utils.calcTicksX = function(numTicks, data) {
+  console.log('start tweaked calcTicksX');
+    // find max number of values from all data streams
+    var numValues = 1;
+    var i = 0;
+    for (i; i < data.length; i += 1) {
+        var stream_len = data[i] && data[i].values ? data[i].values.length : 0;
+        numValues = stream_len > numValues ? stream_len : numValues;
+    }
+    nv.log("Requested number of ticks: ", numTicks);
+    nv.log("Calculated max values to be: ", numValues);
+    numTicks = numValues;
+    //// make sure we don't have more ticks than values to avoid duplicates
+    //numTicks = numTicks > numValues ? numTicks = numValues - 1 : numTicks;
+    //// make sure we have at least one tick
+    //numTicks = numTicks < 1 ? 1 : numTicks;
+    //// make sure it's an integer
+    //numTicks = Math.floor(numTicks);
+    nv.log("Calculating tick count as: ", numTicks);
+    return numTicks;
+};
+
 var gdata=null;
+var dow=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 d3.csv("data/per_day_of_week.csv")
   .row(function(d) {
     return {key: d['day'], value: parseInt(d['count'], 10) }
@@ -26,12 +57,19 @@ d3.csv("data/per_day_of_week.csv")
 
   gdata=data;
 
+  var dow_scale = d3.scale.ordinal()
+        .range(dow)
+        ;
+
   nv.addGraph(function() {
       var chart = nv.models.lineChart()
             .margin({top: 30, right: 60, bottom: 50, left: 70})
             //We can set x data accessor to use index. Reason? So the bars all appear evenly spaced.
-            .x(function(d,i) { d = new Date('2015','02',i+2); console.log(d); return d })
+            .x(function(d,i) { d = new Date('2015','02',i+2); return d })
             .y(function(d,i) { return d.value })
+            .interpolate('cardinal')
+            .forceX(dow[0], dow[6])
+            //.scale(dow_scale)
             ;
 
       //chart.xAxis.tickFormat(function(d) {
@@ -44,8 +82,9 @@ d3.csv("data/per_day_of_week.csv")
       console.log(tickValues);
       chart.xAxis
           //.showMaxMin(false)
-          .ticks(8)
-          //.tickValues(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])
+          //.ticks(10)
+          //.tickValues(dow)
+          //.tickFormat(function(d){ return d })
           .tickFormat(function(d) {
             return d3.time.format('%a')(new Date(d));
           })
@@ -70,6 +109,37 @@ d3.csv("data/per_day_of_week.csv")
   });
 
 });
+
+
+var lineData = [4, 8, 3, 16, 23, 42, 4];
+var lineFunction = d3.svg.line()
+  .x(function(d,i) { return i*30; })
+  .y(function(d,i) { return d*2; })
+  .interpolate("cardinal")
+;
+
+var svgContainer = d3.select("body").append("svg")
+  .attr("width", 200)
+  .attr("height", 200)
+  ;
+
+var lineGraph = svgContainer.append("path")
+  .attr("d", lineFunction(lineData))
+  .attr("stroke", "blue")
+  .attr("stroke-width", 2)
+  .attr("fill", "none")
+  ;
+
+y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
+x = d3.scale.ordinal().domain([0, data.length]).range([0 + margin, w - margin])
+
+var xAxis = svgContainer.append('g')
+  .attr("class", "axis")
+
+
+/*
+  <path class="link" d="M118.9331619537275,202.1C125.19280205655527,202.1 125.19280205655527,133.70000000000002 131.45244215938303,133.70000000000002" from="luckyluke6_0" to="luckyluke6_1" charid="luckyluke6_0" style="stroke: rgb(25, 99, 150); stroke-width: 1.8px; stroke-opacity: 0.6; stroke-linecap: round;"></path>
+*/
 </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ require 'time'
 require 'ostruct'
 require 'yaml'
 require 'fileutils'
+require 'pry'
 
 def usage
   puts <<-USAGE
@@ -72,7 +73,9 @@ class PhotoStats
     per_dow_list  = stats_by_taken(:day_of_week)
     per_dow_count = [['day', 'count']]
 
-    per_dow_list.each do |dow, photos|
+    (1..7).each do |day|
+      dow = Time.parse("2016-02-#{day}").strftime('%A')
+      photos = per_dow_list[dow]
       per_dow_count << [dow, photos.count]
     end
 
