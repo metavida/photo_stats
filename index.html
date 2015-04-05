@@ -11,11 +11,12 @@
 </head>
 <body>
 <h1>Graph</h1>
-<div id="chart">
+<div id="dow_chart">
   <svg style="width:100%">
     <g></g>
   </svg>
 </div>
+<div id="dow_chart_2"></div>
 
 <script type="text/javascript">
 
@@ -49,13 +50,12 @@ nv.utils.calcTicksX = function(numTicks, data) {
 
 var gdata=null;
 var dow=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var dowD3;
 d3.csv("data/per_day_of_week.csv")
   .row(function(d) {
     return {key: d['day'], value: parseInt(d['count'], 10) }
   })
   .get(function(error,data) {
-
-  gdata=data;
 
   var dow_scale = d3.scale.ordinal()
         .range(dow)
@@ -63,7 +63,7 @@ d3.csv("data/per_day_of_week.csv")
 
   nv.addGraph(function() {
       var chart = nv.models.lineChart()
-            .margin({top: 30, right: 60, bottom: 50, left: 70})
+            .margin(0)
             //We can set x data accessor to use index. Reason? So the bars all appear evenly spaced.
             .x(function(d,i) { d = new Date('2015','02',i+2); return d })
             .y(function(d,i) { return d.value })
@@ -96,7 +96,7 @@ d3.csv("data/per_day_of_week.csv")
           .tickFormat(d3.format(',r'))
           ;
 
-      d3.select('#chart svg')
+      dowD3 = d3.select('#dow_chart svg')
         .datum([{ values: data, key: 'Photos Per DOW', area: true }])
         .transition()
         .duration(0)
@@ -111,6 +111,7 @@ d3.csv("data/per_day_of_week.csv")
 });
 
 
+/* Manual d3, test 1 */
 var lineData = [4, 8, 3, 16, 23, 42, 4];
 var lineFunction = d3.svg.line()
   .x(function(d,i) { return i*30; })
@@ -130,16 +131,58 @@ var lineGraph = svgContainer.append("path")
   .attr("fill", "none")
   ;
 
-y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
-x = d3.scale.ordinal().domain([0, data.length]).range([0 + margin, w - margin])
+console.log('start test 2');
+/* Manual d3, test 2 */
+d3.csv("data/per_day_of_week.csv")
+  .row(function(d) {
+    return {key: d['day'], value: parseInt(d['count'], 10) }
+  })
+  .get(function(error,data) {
+    var xdata   = d3.map(data, function(d,i) {return i}).keys();
+    var xlabels = d3.map(data, function(d,i) {return d.key}).keys();
+    var ydata   = [];
+    data.forEach(function(d) { ydata.push(d.value)});
+    console.log(d3.max(xdata));
+    var w = 400,
+        h = 200,
+        margin = 20,
+        y = d3.scale.linear()
+          .domain([d3.min(ydata), d3.max(ydata)])
+          .range([0 + margin, h - margin]),
+        x = d3.scale.linear()
+          .domain([0, d3.max(xdata)])
+          .range([0 + margin, w - margin]);
 
-var xAxis = svgContainer.append('g')
-  .attr("class", "axis")
+    var vis = d3.select("body #dow_chart_2")
+        .append("svg:svg")
+        .attr("width", w)
+        .attr("height", h)
+        ;
 
+    var g = vis.append("svg:g")
+        .attr("transform", "translate(0, 200)");
 
-/*
-  <path class="link" d="M118.9331619537275,202.1C125.19280205655527,202.1 125.19280205655527,133.70000000000002 131.45244215938303,133.70000000000002" from="luckyluke6_0" to="luckyluke6_1" charid="luckyluke6_0" style="stroke: rgb(25, 99, 150); stroke-width: 1.8px; stroke-opacity: 0.6; stroke-linecap: round;"></path>
-*/
+    var line = d3.svg.line()
+        .x(function(d,i) { console.log(['x', d, x(i)]); return x(i); })
+        .y(function(d,i) { console.log(['y', d, -1 * y(i)]); return -1 * y(i); })
+        ;
+    g.append("svg:path").attr("d", line(xdata));
+
+    debugger;
+    g.append("svg:line")
+        .attr("x1", x(0))
+        .attr("y1", y(0))
+        .attr("x2", x(w))
+        .attr("y2", y(0))
+
+    g.append("svg:line")
+        .attr("x1", x(0))
+        .attr("y1", y(0))
+        .attr("x2", x(0))
+        .attr("y2", y(d3.max(ydata)))
+  })
+  ;
+
 </script>
 </body>
 </html>
