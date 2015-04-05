@@ -3,6 +3,7 @@
 <head>
   <title>One Year</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.1/nv.d3.min.css" />
+  <link rel="stylesheet" href="/css/override.css" />
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 
@@ -13,8 +14,8 @@
 <h1>Graph</h1>
 <div id="dow_chart">
   <svg style="width:100%">
-    <g></g>
   </svg>
+  <div class="xaxis"></div>
 </div>
 <div id="dow_chart_2"></div>
 
@@ -57,47 +58,28 @@ d3.csv("data/per_day_of_week.csv")
   })
   .get(function(error,data) {
 
-  var dow_scale = d3.scale.ordinal()
-        .range(dow)
-        ;
-
-  nv.addGraph(function() {
+    nv.addGraph(function() {
+      var noTicksFormat = function(d) { return '' };
       var chart = nv.models.lineChart()
             .margin(0)
             //We can set x data accessor to use index. Reason? So the bars all appear evenly spaced.
             .x(function(d,i) { d = new Date('2015','02',i+2); return d })
             .y(function(d,i) { return d.value })
             .interpolate('cardinal')
-            .forceX(dow[0], dow[6])
-            //.scale(dow_scale)
             ;
 
-      //chart.xAxis.tickFormat(function(d) {
-      //  console.log('chart.xAxis.tickFormat');
-      //  console.log(d);
-      //  var dx = data[0].values[d] && data[0].values[d][0] || 0;
-      //  return d3.time.format('%x')(new Date(dx))
-      //});
-      var tickValues=data.map(function(d) { return d.key; });
-      console.log(tickValues);
       chart.xAxis
-          //.showMaxMin(false)
-          //.ticks(10)
-          //.tickValues(dow)
-          //.tickFormat(function(d){ return d })
-          .tickFormat(function(d) {
-            return d3.time.format('%a')(new Date(d));
-          })
-          .rotateLabels(45)
+          .showMaxMin(false)
+          .tickFormat(function(d) { return d3.time.format('%A')(new Date(d)) })
           ;
 
       chart.yAxis
-          .axisLabel('Num Photos')
+          .showMaxMin(false)
           .tickFormat(d3.format(',r'))
           ;
 
       dowD3 = d3.select('#dow_chart svg')
-        .datum([{ values: data, key: 'Photos Per DOW', area: true }])
+        .datum([{ values: data, key: 'Photos by Day of the Week', area: true }])
         .transition()
         .duration(0)
         .call(chart)
@@ -106,82 +88,10 @@ d3.csv("data/per_day_of_week.csv")
       nv.utils.windowResize(chart.update);
 
       return chart;
-  });
-
-});
-
-
-/* Manual d3, test 1 */
-var lineData = [4, 8, 3, 16, 23, 42, 4];
-var lineFunction = d3.svg.line()
-  .x(function(d,i) { return i*30; })
-  .y(function(d,i) { return d*2; })
-  .interpolate("cardinal")
-;
-
-var svgContainer = d3.select("body").append("svg")
-  .attr("width", 200)
-  .attr("height", 200)
-  ;
-
-var lineGraph = svgContainer.append("path")
-  .attr("d", lineFunction(lineData))
-  .attr("stroke", "blue")
-  .attr("stroke-width", 2)
-  .attr("fill", "none")
-  ;
-
-console.log('start test 2');
-/* Manual d3, test 2 */
-d3.csv("data/per_day_of_week.csv")
-  .row(function(d) {
-    return {key: d['day'], value: parseInt(d['count'], 10) }
-  })
-  .get(function(error,data) {
-    var xdata   = d3.map(data, function(d,i) {return i}).keys();
-    var xlabels = d3.map(data, function(d,i) {return d.key}).keys();
-    var ydata   = [];
-    data.forEach(function(d) { ydata.push(d.value)});
-    console.log(d3.max(xdata));
-    var w = 400,
-        h = 200,
-        margin = 20,
-        y = d3.scale.linear()
-          .domain([d3.min(ydata), d3.max(ydata)])
-          .range([0 + margin, h - margin]),
-        x = d3.scale.linear()
-          .domain([0, d3.max(xdata)])
-          .range([0 + margin, w - margin]);
-
-    var vis = d3.select("body #dow_chart_2")
-        .append("svg:svg")
-        .attr("width", w)
-        .attr("height", h)
-        ;
-
-    var g = vis.append("svg:g")
-        .attr("transform", "translate(0, 200)");
-
-    var line = d3.svg.line()
-        .x(function(d,i) { console.log(['x', d, x(i)]); return x(i); })
-        .y(function(d,i) { console.log(['y', d, -1 * y(i)]); return -1 * y(i); })
-        ;
-    g.append("svg:path").attr("d", line(xdata));
-
-    debugger;
-    g.append("svg:line")
-        .attr("x1", x(0))
-        .attr("y1", y(0))
-        .attr("x2", x(w))
-        .attr("y2", y(0))
-
-    g.append("svg:line")
-        .attr("x1", x(0))
-        .attr("y1", y(0))
-        .attr("x2", x(0))
-        .attr("y2", y(d3.max(ydata)))
+    });
   })
   ;
+
 
 </script>
 </body>

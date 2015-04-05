@@ -1,0 +1,29 @@
+---
+---
+
+.nvd3 .nv-axis * { visibility: hidden; }
+
+$min_width: 600px;
+#dow_chart {
+  position: relative;
+  max-width: 800px;
+  min-width: $min_width;
+}
+#dow_chart svg {
+  position: relative;
+  top: 0;
+  z-index: 5;
+  min-width: $min_width;
+}
+#dow_chart > div.xaxis {
+  position: absolute;
+  top: 100px;
+  right: -30px;
+  z-index: 4;
+  width: 100%;
+  min-width: $min_width;
+  height: 75px;
+  margin: 0px;
+  background: 0px 0px no-repeat url('/images/dow.xaxis.v1.png');
+  background-size: calc(100% - 30px) 75px;
+}
