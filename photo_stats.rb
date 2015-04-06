@@ -133,7 +133,14 @@ class PhotoStats
 
     File.open(path, 'w') do |file|
       table.each do |row|
-        file.puts(Array(row).join(','))
+        row = Array(row).map do |val|
+          if val.respond_to?(:strftime)
+            val.strftime("%d %b %Y %T %z")
+          else
+            val
+          end
+        end
+        file.puts(row.join(','))
       end
     end
   end

@@ -4,25 +4,33 @@
 .hide-x {
   .nvd3 .nv-x * { visibility: hidden; }
 }
+.hide-x-tick {
+  .nvd3 .nv-x .tick line { visibility: hidden; }
+}
 .hide-y {
   .nvd3 .nv-y * { visibility: hidden; }
 }
 
 
 $min_width: 600px;
-.photo-line {
+.photo-line, .photo-bar {
   max-width: 800px;
   min-width: $min_width;
 
   svg {
-    z-index: 5;
+    width: 100%;
     min-width: $min_width;
-    margin-top: -40px;
+  }
+}
+.photo-line {
+  svg {
+    z-index: 5;
 
     .nvd3 g.nv-groups path.nv-line {
       stroke-width: 5px;
     }
 
+    margin-top: -40px;
     .nvd3 .nv-legend {
       display: none;
     }
@@ -51,7 +59,6 @@ $min_width: 600px;
   padding-bottom: $axis_height;
 
   & > svg {
-    width: 100%;
     height: $chart_height;
   }
   & > div.xaxis > div {
@@ -66,9 +73,9 @@ $min_width: 600px;
 #dow_chart {
   $chart_height: 200px;
   $axis_height: 75px;
+  padding-bottom: $axis_height;
 
   & > svg {
-    width: 100%;
     height: $chart_height;
   }
   & > div.xaxis > div {
@@ -79,3 +86,4 @@ $min_width: 600px;
     background-size: calc(100% - 35px) $axis_height;
   }
 }
+
