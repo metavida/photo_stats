@@ -6,7 +6,7 @@ require 'fileutils'
 require 'pry'
 
 def usage
-  puts <<-USAGE
+  <<-USAGE
 Compiles (mostly date/time-based) statistics about photos/videos in a folder.
 
 usage: photo_stats.rb directory
@@ -15,9 +15,13 @@ USAGE
 end
 
 class PhotoStats
-  attr_accessor :photo_dir, :photo_stats
+  attr_accessor :photo_dir, :photo_stats, :options
 
-  def initialize(photo_dir)
+  # Available options
+  # :no_top_10: Default true
+  def initialize(photo_dir, options={})
+    options[:no_top_10] = true unless options.has_key?(:no_top_10)
+    @options = options
     @photo_details = PhotoDetailGetter.new(photo_dir).get_details
   end
 
@@ -40,7 +44,6 @@ class PhotoStats
   def photos_per_day
     per_day_list  = stats_by_taken(:day).sort_by{ |day, photos| day }
     per_day_count = []
-    top_10 = []
 
     cumulative_total = []
     per_day_list.each do |day, photos|
@@ -57,11 +60,14 @@ class PhotoStats
       cumulative_total << [current_day, prev_total+1]
     end
 
-    top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
-
     report 'per_day', [['day', 'count']] + per_day_count
-    report 'top_10', [['day', 'count']] + top_10
     report 'cumulative_total', [['day', 'count']] + cumulative_total
+
+    unless options[:no_top_10]
+      top_10 = []
+      top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
+      report 'top_10', [['day', 'count', 'photo', 'note']] + top_10, :do_backup
+    end
   end
 
   def photos_per_month
@@ -125,11 +131,15 @@ class PhotoStats
     end
   end
 
-  def report(filename, table)
+  def report(filename, table, backup=false)
     path = File.expand_path(File.join(
       File.dirname(__FILE__), 'data', "#{filename}.csv"
     ))
     FileUtils.mkdir_p(File.dirname(path))
+
+    if backup && File.exists?(path)
+      FileUtils.mv(path, path.gsub(/.csv/, "#{Time.now.strftime('%Y-%m-%d-%H-%M-%S')}.csv"))
+    end
 
     File.open(path, 'w') do |file|
       table.each do |row|
@@ -247,14 +257,25 @@ class PhotoDetailGetter
   end
 end
 
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = usage
+
+  opts.on("-10", "--top10", "Generate a new top_10.csv") do |ten|
+    options[:do_top_10] = !!ten
+  end
+end.parse!
+
 case ARGV.size
 when 1
-  stats = PhotoStats.new(ARGV[0])
+  stats = PhotoStats.new(ARGV[0], :no_top_10=>!options[:do_top_10])
   stats.photos_per_subject
   stats.photos_per_day
   stats.photos_per_day_of_week
   stats.photos_per_month
   stats.days_with_no_photos
 else
-  usage
+  puts usage
 end

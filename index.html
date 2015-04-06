@@ -35,8 +35,14 @@
   <div class="xaxis"><div></div></div>
 </div>
 
-<h2 id="dow">Photos per Kid</h2>
+<h2 id="kid">Photos per Kid</h2>
 <div id="jvg_chart" class="photo-bar hide-y hide-x-tick"></div>
+
+<p>But some days we went overboard :-D</p>
+
+<h2 id="top10">Top 10 days</h2>
+<div id="top10_table" class="photo-table"></div>
+
 
 <script type="text/javascript">
 //nv.log = function() {
@@ -164,6 +170,50 @@ d3.csv("data/per_subject.csv")
   })
   ;
 
+d3.csv("data/top_10.csv")
+  .row(function(d) {
+    var date = d3.time.format('%d %b %Y')(new Date(d['day']));
+    return {
+      'day':date,
+      'count':parseInt(d['count'], 10),
+      'photo':d['photo'],
+      'note':d['note']
+    };
+  })
+  .get(function(error,data) {
+    var photo_to_img = function(d, even) {
+      var photos = d['photo'].split(/\+/)
+      return photos.map(function(img) {
+        if(img.length > 0)
+          return '\<img src="images/photos/'+img+'" alt="'+d['note']+'" class="'+(even ? 'even' : 'odd')+'" />';
+        return '';
+      }).join(' ');
+    }
+
+    var tr = d3.select('#top10_table')
+      .append('table').selectAll("tr")
+      .data(data)
+      .enter().append("tr");
+      ;
+
+    var even = true;
+    tr.selectAll("td")
+      .data(function(d) {
+        console.log(d);
+        even = !even;
+        return [
+          d['count']+' on '+d['day'],
+          photo_to_img(d,even),
+          d['note']
+        ];
+      })
+      .enter().append("td")
+      .html(function(d,i) {
+        return d;
+      })
+      ;
+  })
+  ;
 
 </script>
 </body>
