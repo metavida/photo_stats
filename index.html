@@ -11,47 +11,65 @@
 
 </head>
 <body>
-<h1>Graph</h1>
-<div id="dow_chart">
-  <svg style="width:100%">
-  </svg>
-  <div class="xaxis"></div>
+<h1>One Year of Photos</h1>
+<p>One year ago I had the amazing pleasure of updating <a href="http://arethetwinsbornyet.wrightkuhns.com">arethetwinsbornyet.wrightkuhns.com</a></p>
+<div id="total_chart" class="photo-line hide-x">
+  <div class="xaxis"><div></div></div>
 </div>
-<div id="dow_chart_2"></div>
+<div id="dow_chart" class="photo-line hide-x hide-y">
+  <div class="xaxis"><div></div></div>
+</div>
 
 <script type="text/javascript">
+//nv.log = function() {
+//  args = [];
+//  for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
+//  console.log(args);
+//}
 
-nv.log = function() {
-  args = [];
-  for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
-  console.log(args);
-}
+d3.csv("data/cumulative_total.csv")
+  .row(function(d) {
+    return {key: d['day'], value: parseInt(d['count'], 10) }
+  })
 
-nv.utils.calcTicksX = function(numTicks, data) {
-  console.log('start tweaked calcTicksX');
-    // find max number of values from all data streams
-    var numValues = 1;
-    var i = 0;
-    for (i; i < data.length; i += 1) {
-        var stream_len = data[i] && data[i].values ? data[i].values.length : 0;
-        numValues = stream_len > numValues ? stream_len : numValues;
-    }
-    nv.log("Requested number of ticks: ", numTicks);
-    nv.log("Calculated max values to be: ", numValues);
-    numTicks = numValues;
-    //// make sure we don't have more ticks than values to avoid duplicates
-    //numTicks = numTicks > numValues ? numTicks = numValues - 1 : numTicks;
-    //// make sure we have at least one tick
-    //numTicks = numTicks < 1 ? 1 : numTicks;
-    //// make sure it's an integer
-    //numTicks = Math.floor(numTicks);
-    nv.log("Calculating tick count as: ", numTicks);
-    return numTicks;
-};
+  .get(function(error,data) {
+    nv.addGraph(function() {
+      var chart = nv.models.lineChart()
+            .margin(0)
+            .x(function(d,i) { return i })
+            .y(function(d,i) { return d.value })
+            .interpolate('cardinal')
+            ;
+      chart.xAxis
+          .showMaxMin(false)
+          .tickFormat(function(d) {
+            d = new Date(data[d].key);
+            return d3.time.format('%d %b %Y')(d)
+          })
+          ;
 
-var gdata=null;
-var dow=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-var dowD3;
+      chart.yAxis
+          .showMaxMin(false)
+          .tickFormat(d3.format(',r'))
+          ;
+
+      d3.select('#total_chart')
+        .append('svg')
+        .attr('style', 'width: 100%; height: 500px')
+        .datum([{ values: data, key: 'Number of Photos', area: true }])
+        .transition()
+        .duration(0)
+        .call(chart)
+        ;
+
+      nv.utils.windowResize(chart.update);
+
+      return chart;
+    })
+  })
+
+  ;
+
 d3.csv("data/per_day_of_week.csv")
   .row(function(d) {
     return {key: d['day'], value: parseInt(d['count'], 10) }
@@ -59,10 +77,8 @@ d3.csv("data/per_day_of_week.csv")
   .get(function(error,data) {
 
     nv.addGraph(function() {
-      var noTicksFormat = function(d) { return '' };
       var chart = nv.models.lineChart()
             .margin(0)
-            //We can set x data accessor to use index. Reason? So the bars all appear evenly spaced.
             .x(function(d,i) { d = new Date('2015','02',i+2); return d })
             .y(function(d,i) { return d.value })
             .interpolate('cardinal')
@@ -78,7 +94,9 @@ d3.csv("data/per_day_of_week.csv")
           .tickFormat(d3.format(',r'))
           ;
 
-      dowD3 = d3.select('#dow_chart svg')
+      d3.select('#dow_chart')
+        .append('svg')
+        .attr('style', 'width: 100%;')
         .datum([{ values: data, key: 'Photos by Day of the Week', area: true }])
         .transition()
         .duration(0)

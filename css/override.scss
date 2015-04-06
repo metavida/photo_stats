@@ -1,29 +1,76 @@
 ---
 ---
 
-.nvd3 .nv-axis * { visibility: hidden; }
+.hide-x {
+  .nvd3 .nv-x * { visibility: hidden; }
+}
+.hide-y {
+  .nvd3 .nv-y * { visibility: hidden; }
+}
+
 
 $min_width: 600px;
-#dow_chart {
-  position: relative;
+.photo-line {
   max-width: 800px;
   min-width: $min_width;
+
+  svg {
+    z-index: 5;
+    min-width: $min_width;
+
+    .nvd3 g.nv-groups path.nv-line {
+      stroke-width: 5px;
+    }
+    //.nvd3 .nv-area {
+    //  fill: #f00;
+    //}
+  }
+
+  & > div.xaxis {
+    position: relative;
+
+    & > div {
+      position: absolute;
+      z-index: 4;
+      width: 100%;
+      min-width: $min_width;
+      margin: 0px;
+      background: none;
+    }
+  }
 }
-#dow_chart svg {
-  position: relative;
-  top: 0;
-  z-index: 5;
-  min-width: $min_width;
+
+#total_chart {
+  $chart_height: 500px;
+  $axis_height: 60px;
+  padding-bottom: $axis_height;
+
+  & > svg {
+    width: 100%;
+    height: $chart_height;
+  }
+  & > div.xaxis > div {
+    top: $chart_height - 40px;
+    right: -50px;
+    height: $axis_height;
+    background: 0px 0px no-repeat url('/images/cumulative.xaxis.v1.png');
+    background-size: calc(100% - 60px) $axis_height;
+  }
 }
-#dow_chart > div.xaxis {
-  position: absolute;
-  top: 100px;
-  right: -30px;
-  z-index: 4;
-  width: 100%;
-  min-width: $min_width;
-  height: 75px;
-  margin: 0px;
-  background: 0px 0px no-repeat url('/images/dow.xaxis.v1.png');
-  background-size: calc(100% - 30px) 75px;
+
+#dow_chart {
+  $chart_height: 200px;
+  $axis_height: 75px;
+
+  & > svg {
+    width: 100%;
+    height: $chart_height;
+  }
+  & > div.xaxis > div {
+    top: $chart_height - 45px;
+    right: -30px;
+    height: $axis_height;
+    background: 0px -5px no-repeat url('/images/dow.xaxis.v1.png');
+    background-size: calc(100% - 30px) $axis_height;
+  }
 }

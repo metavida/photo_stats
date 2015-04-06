@@ -43,19 +43,23 @@ class PhotoStats
   end
 
   def photos_per_day
-    per_day_list  = stats_by_taken(:day)
+    per_day_list  = stats_by_taken(:day).sort_by{ |day, photos| day }
     per_day_count = []
     top_10 = []
 
+    cumulative_total = []
     per_day_list.each do |day, photos|
       per_day_count << [day, photos.count]
+
+      prev_total = cumulative_total.last.last rescue 0
+      cumulative_total << [day, prev_total + photos.count]
     end
 
     top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
 
     report 'per_day', [['day', 'count']] + per_day_count
-
     report 'top_10', [['day', 'count']] + top_10
+    report 'cumulative_total', [['day', 'count']] + cumulative_total
   end
 
   def photos_per_month
