@@ -55,7 +55,7 @@ d3.csv("data/cumulative_total.csv")
 
       d3.select('#total_chart')
         .append('svg')
-        .attr('style', 'width: 100%; height: 500px')
+        .attr('style', '')
         .datum([{ values: data, key: 'Number of Photos', area: true }])
         .transition()
         .duration(0)
@@ -70,11 +70,14 @@ d3.csv("data/cumulative_total.csv")
 
   ;
 
+var dow_data;
 d3.csv("data/per_day_of_week.csv")
   .row(function(d) {
     return {key: d['day'], value: parseInt(d['count'], 10) }
   })
   .get(function(error,data) {
+
+    dow_data = data;
 
     nv.addGraph(function() {
       var chart = nv.models.lineChart()
@@ -92,7 +95,11 @@ d3.csv("data/per_day_of_week.csv")
       chart.yAxis
           .showMaxMin(false)
           .tickFormat(d3.format(',r'))
+          //.scale().domain([0, )
+          //.scale().domain([10, 1000])
           ;
+
+      chart.forceY([d3.min(data.map(function(d) { return d.value })) - 500, 1000]);
 
       d3.select('#dow_chart')
         .append('svg')

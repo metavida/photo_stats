@@ -42,7 +42,7 @@ $min_width: 600px;
 
 #total_chart {
   $chart_height: 500px;
-  $axis_height: 60px;
+  $axis_height: 65px;
   padding-bottom: $axis_height;
 
   & > svg {
@@ -51,10 +51,10 @@ $min_width: 600px;
   }
   & > div.xaxis > div {
     top: $chart_height - 40px;
-    right: -50px;
+    right: -45px;
     height: $axis_height;
     background: 0px 0px no-repeat url('/images/cumulative.xaxis.v1.png');
-    background-size: calc(100% - 60px) $axis_height;
+    background-size: calc(100% - 50px) $axis_height;
   }
 }
 
@@ -68,9 +68,9 @@ $min_width: 600px;
   }
   & > div.xaxis > div {
     top: $chart_height - 45px;
-    right: -30px;
+    right: -33px;
     height: $axis_height;
     background: 0px -5px no-repeat url('/images/dow.xaxis.v1.png');
-    background-size: calc(100% - 30px) $axis_height;
+    background-size: calc(100% - 35px) $axis_height;
   }
 }

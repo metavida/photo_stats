@@ -25,18 +25,13 @@ class PhotoStats
     by_taken = stats_by_taken(:day)
     days = by_taken.keys.sort
 
-    last_day = [days.last, Time.new(Time.now.year, Time.now.month, Time.now.day)].min
-    current_day = days.first
+    first_day = days.first
+    # Either the last day listed or the end day (whichever is earlier)
+    last_day = [days.last, get_day(:end)].min
 
     no_photos = ['date']
-    while current_day <= last_day
+    each_day_between(first_day, last_day) do |current_day|
       no_photos << [current_day] if !by_taken.include?(current_day)
-
-      next_day = Time.new(current_day.year, current_day.month, current_day.day + 1) rescue nil
-      next_day ||= Time.new(current_day.year, current_day.month + 1, 1) rescue nil
-      next_day ||= Time.new(current_day.year + 1, 1, 1) rescue nil
-      fail if next_day.nil?
-      current_day = next_day
     end
 
     report 'no_photos', no_photos
@@ -53,6 +48,13 @@ class PhotoStats
 
       prev_total = cumulative_total.last.last rescue 0
       cumulative_total << [day, prev_total + photos.count]
+    end
+
+    each_day_between(cumulative_total.last.first, get_day(:end)) do |current_day|
+      prev = cumulative_total.last
+      prev_day = prev.first
+      prev_total = prev.last rescue 0
+      cumulative_total << [current_day, prev_total+1]
     end
 
     top_10 = per_day_count.sort_by { |r| r[1] }.reverse[0..10]
@@ -97,6 +99,31 @@ class PhotoStats
   end
 
   private
+
+  def each_day_between(start_day, end_day)
+    current_day = start_day
+    while current_day <= end_day
+      yield(current_day)
+
+      next_day = Time.new(current_day.year, current_day.month, current_day.day + 1) rescue nil
+      next_day ||= Time.new(current_day.year, current_day.month + 1, 1) rescue nil
+      next_day ||= Time.new(current_day.year + 1, 1, 1) rescue nil
+      fail if next_day.nil?
+      current_day = next_day
+    end
+  end
+
+  def get_day(start_or_end)
+    @dates ||= YAML.load_file(File.join(File.dirname(__FILE__), 'data/dates.yml')) rescue {}
+    case start_or_end
+    when :start
+      Time.parse(@dates['start_day'])
+    when :end
+      Time.parse(@dates['end_day'])
+    else
+      fail ArgumentError.new("Expected :start or :end, but got #{start_or_end.inspect}")
+    end
+  end
 
   def report(filename, table)
     path = File.expand_path(File.join(
@@ -201,7 +228,7 @@ class PhotoDetailGetter
 
   def get_subject(filename)
     name = filename.match(/([^\-]*\s+-\s+)([^ \.]+)/)[2] rescue ''
-    @known_subjects ||= YAML.load_file(File.join(File.dirname(__FILE__), 'subjects.yml')) rescue []
+    @known_subjects ||= YAML.load_file(File.join(File.dirname(__FILE__), 'data/subjects.yml')) rescue []
     @known_subjects.include?(name) ?
       name : nil
   end
