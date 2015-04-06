@@ -3,7 +3,8 @@
 <head>
   <title>One Year</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.1/nv.d3.min.css" />
-  <link rel="stylesheet" href="/css/override.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/charts.css" />
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 
@@ -11,11 +12,25 @@
 
 </head>
 <body>
-<h1>One Year of Photos</h1>
-<p>One year ago I had the amazing pleasure of updating <a href="http://arethetwinsbornyet.wrightkuhns.com">arethetwinsbornyet.wrightkuhns.com</a></p>
+
+<h1 id="intro">One Year of Photos</h1>
+<p>
+  One year ago I had the amazing joy of posting a big <strong>&quot;Yes!&quot;</strong> on <a href="http://arethetwinsbornyet.wrightkuhns.com">arethetwinsbornyet.wrightkuhns.com</a>
+</p>
+<p>
+  Now, one year later, we've documented so many amazing memories!
+</p>
+
+<h2 id="total">We took <span id="total_count">over 7,000</span> photos of the boys!</h2>
+
 <div id="total_chart" class="photo-line hide-x">
   <div class="xaxis"><div></div></div>
 </div>
+
+<p>We generally took photos evenly:</p>
+
+<h2 id="dow">Photos per Day of the Week</h2>
+
 <div id="dow_chart" class="photo-line hide-x hide-y">
   <div class="xaxis"><div></div></div>
 </div>
@@ -60,6 +75,10 @@ d3.csv("data/cumulative_total.csv")
         .transition()
         .duration(0)
         .call(chart)
+        ;
+
+      d3.select("#total_count")
+        .text(d3.format(',')(data[data.length-1].value))
         ;
 
       nv.utils.windowResize(chart.update);

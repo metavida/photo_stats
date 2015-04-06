@@ -9,3 +9,7 @@ $ bundle install
 $ bundle exec ./photo_stats.rb ~/Dropbox/Photos/Family\ Photos/
 $ bundle exec jekyll server
 ````
+
+## Licenses
+
+Files in the project use several licenses. See [LICENSE.txt] for details.
