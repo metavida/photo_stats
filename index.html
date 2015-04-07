@@ -17,7 +17,7 @@
 
 <h1 id="intro">One Year of Photos</h1>
 <p>
-  One year ago I had the amazing joy of posting a big <strong>&quot;Yes!&quot;</strong> on <a href="http://arethetwinsbornyet.wrightkuhns.com">arethetwinsbornyet.wrightkuhns.com</a>
+  One year ago I had the amazing joy of <a href="http://arethetwinsbornyet.wrightkuhns.com">welcoming</a> two boys into our family.
 </p>
 <p>
   Now, one year later, we've documented so many amazing memories!
@@ -29,7 +29,7 @@
   <div class="xaxis"><div></div></div>
 </div>
 
-<p>We generally took photos evenly:</p>
+<p>We generally took photos evenly.</p>
 
 <div id="even">
   <div>
@@ -46,11 +46,18 @@
   </div>
 </div>
 
-<p>But some days we went overboard 😊</p>
+<p>Some days we went overboard 😊</p>
 
 <h2 id="top10">Most photographed days</h2>
 <div id="top10_table" class="photo-table"></div>
 
+<p>A few days we even slacked off. <span id="no_photos"></span></p>
+
+<p>In the end, it has been a truly wonderful and awe inspiring year.</p>
+
+<h2>Here's to another 365 days of photos and family!</h2>
+
+<footer>&copy; 2015 Marcos Wright-Kuhns &ndash; <a href="">source code available</a> under the <a href="">MIT License</a></footer>
 
 <script type="text/javascript">
 //nv.log = function() {
@@ -58,6 +65,28 @@
 //  for (var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
 //  console.log(args);
 //}
+
+var stats = {};
+function calc_stats() {
+d3.csv("data/per_day.csv")
+  .row(function(d) {
+    return {key: d['day'], value: parseInt(d['count'], 10) }
+  })
+
+  .get(function(error,data) {
+    var vals = data.map(function(d) { return d.value });
+    stats = {
+      'average' : d3.mean(vals),
+      'median'  : d3.median(vals),
+      'sum'     : d3.sum(vals)
+    }
+
+  d3.select("#total_count")
+    .text(d3.format(',')(stats.sum))
+    ;
+  })
+  ;
+}
 
 function cumulative_total() {
   d3.csv("data/cumulative_total.csv")
@@ -230,30 +259,22 @@ function top_10() {
     ;
 }
 
-var stats = {};
-function calc_stats() {
-d3.csv("data/per_day.csv")
-  .row(function(d) {
-    return {key: d['day'], value: parseInt(d['count'], 10) }
-  })
-
-  .get(function(error,data) {
-    var vals = data.map(function(d) { return d.value });
-    stats = {
-      'average' : d3.mean(vals),
-      'median'  : d3.median(vals),
-      'sum'     : d3.sum(vals)
-    }
-
-  d3.select("#total_count")
-    .text(d3.format(',')(stats.sum))
+function no_photos() {
+  d3.csv("data/no_photos.csv")
+    .row(function(d) {
+      return d3.time.format('%b %d')(new Date(d['date']));
+    })
+    .get(function(error,data) {
+      d3.select('#no_photos')
+        .text('(There were '+data.length+' days with no photos at all!)')
+      ;
+    })
     ;
-  })
-  ;
 }
 
-['calc_stats','cumulative_total', 'per_day_of_week', 'per_subject', 'top_10']
+['calc_stats','cumulative_total', 'per_day_of_week', 'per_subject', 'top_10', 'no_photos']
 //['calc_stats','top_10']
+//['no_photos']
   .forEach(function(chart) { window[chart](); })
   ;
 </script>
