@@ -86,10 +86,6 @@ function cumulative_total() {
           .call(chart)
           ;
 
-        d3.select("#total_count")
-          .text(d3.format(',')(data[data.length-1].value))
-          ;
-
         nv.utils.windowResize(chart.update);
 
         return chart;
@@ -208,24 +204,48 @@ function top_10() {
           console.log(d);
           even = !even;
           return [
-            d['count']+' on '+d['day'],
-            photo_to_img(d,even),
-            d['note']
+            ['note',  d['note']],
+            ['day',   d['day']],
+            ['photo', photo_to_img(d,even)],
+            ['count', d['count']+' photos'],
+            ['stat',  ''+d3.format(',%')((d['count']-stats.average) / stats.average)+' \<i>&#10148;\</i> average']
           ];
         })
         .enter()
         .append("span")
-        .attr("class", function(d,i) { return "col_"+i; })
+        .attr("class", function(d,i) { return d[0]+"_col"; })
         .html(function(d,i) {
-          return d;
+          return d[1];
         })
         ;
     })
     ;
 }
 
-//['cumulative_total', 'per_day_of_week', 'per_subject', 'top_10']
-['top_10']
+var stats = {};
+function calc_stats() {
+d3.csv("data/per_day.csv")
+  .row(function(d) {
+    return {key: d['day'], value: parseInt(d['count'], 10) }
+  })
+
+  .get(function(error,data) {
+    var vals = data.map(function(d) { return d.value });
+    stats = {
+      'average' : d3.mean(vals),
+      'median'  : d3.median(vals),
+      'sum'     : d3.sum(vals)
+    }
+
+  d3.select("#total_count")
+    .text(d3.format(',')(stats.sum))
+    ;
+  })
+  ;
+}
+
+//['calc_stats','cumulative_total', 'per_day_of_week', 'per_subject', 'top_10']
+['calc_stats','top_10']
   .forEach(function(chart) { window[chart](); })
   ;
 </script>
