@@ -13,15 +13,20 @@
 
 
 $min_width: 600px;
-.photo-line, .photo-bar {
-  max-width: 800px;
-  min-width: $min_width;
+@mixin width-with-svg($min, $max) {
+  min-width: $min;
+  max-width: $max;
 
   svg {
     width: 100%;
-    min-width: $min_width;
+    min-width: $min;
+  }
+
+  & > div.xaxis > div {
+    min-width: $min;
   }
 }
+
 .photo-line {
   svg {
     z-index: 5;
@@ -30,7 +35,6 @@ $min_width: 600px;
       stroke-width: 5px;
     }
 
-    margin-top: -40px;
     .nvd3 .nv-legend {
       display: none;
     }
@@ -50,7 +54,6 @@ $min_width: 600px;
       position: absolute;
       z-index: 4;
       width: 100%;
-      min-width: $min_width;
       margin: 0px;
       background: none;
     }
@@ -62,8 +65,11 @@ $min_width: 600px;
   $axis_height: 65px;
   padding-bottom: $axis_height;
 
+  @include width-with-svg($min_width, 950px);
+
   & > svg {
     height: $chart_height;
+    margin-top: -40px;
   }
   & > div.xaxis > div {
     top: $chart_height - 40px;
@@ -74,33 +80,57 @@ $min_width: 600px;
   }
 }
 
+#even {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+
+  & > div {
+    flex: 1 1 auto;
+  }
+}
+
 #dow_chart {
-  $chart_height: 200px;
-  $axis_height: 75px;
+  $chart_height: 175px;
+  $axis_height: 35px;
   padding-bottom: $axis_height;
+
+  @include width-with-svg(200px, 500px);
 
   & > svg {
     height: $chart_height;
+    margin-top: -25px;
   }
   & > div.xaxis > div {
     top: $chart_height - 45px;
-    right: -33px;
+    right: -50px;
     height: $axis_height;
     background: 0px -5px no-repeat url('/images/dow.xaxis.v1.png');
-    background-size: calc(100% - 35px) $axis_height;
+    background-size: calc(100% - 65px) $axis_height;
   }
+}
+
+#jvg_chart {
+  @include width-with-svg(200px, 450px);
 }
 
 #top10_table {
   $cell_width: 250px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
 
   & > div {
-    float: left;
+    flex: 1 1 auto;
     width: $cell_width;
     margin: 10px;
     padding: 10px;
     border: 1px solid #888;
     text-align: center;
+
+
   }
   .note_col {
     font-size: 1.2em;
@@ -126,7 +156,9 @@ $min_width: 600px;
   }
   .stat_col {
     display: block;
+    padding-top: 2px;
     font-size: .9em;
+    color: #7CE47A;
     & > i {
       display: inline-block;
       font-style: normal;

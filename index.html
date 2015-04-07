@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>One Year</title>
+  <title>One Year of Photos</title>
+  <meta name="description" content="A look back on the 365 days of photos after our boys were born.">
+  <meta charset='utf-8'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.1/nv.d3.min.css" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/charts.css" />
@@ -29,18 +31,24 @@
 
 <p>We generally took photos evenly:</p>
 
+<div id="even">
+  <div>
 <h2 id="dow">Photos per Day of the Week</h2>
 
 <div id="dow_chart" class="photo-line hide-x">
   <div class="xaxis"><div></div></div>
 </div>
-
+  </div>
+  <div>
 <h2 id="kid">Photos per Kid</h2>
 <div id="jvg_chart" class="photo-bar hide-y hide-x-tick"></div>
 
-<p>But some days we went overboard :-D</p>
+  </div>
+</div>
 
-<h2 id="top10">Top 10 days</h2>
+<p>But some days we went overboard 😊</p>
+
+<h2 id="top10">Most photographed days</h2>
 <div id="top10_table" class="photo-table"></div>
 
 
@@ -201,14 +209,14 @@ function top_10() {
       var even = true;
       row.selectAll("span")
         .data(function(d) {
-          console.log(d);
           even = !even;
+          var gt_avg = (d['count']-stats.average) / stats.average;
           return [
             ['note',  d['note']],
             ['day',   d['day']],
             ['photo', photo_to_img(d,even)],
             ['count', d['count']+' photos'],
-            ['stat',  ''+d3.format(',%')((d['count']-stats.average) / stats.average)+' \<i>&#10148;\</i> average']
+            ['stat',  ''+(isNaN(gt_avg) ? '' : d3.format(',%')(gt_avg)+' \<i>&#10148;\</i> average')]
           ];
         })
         .enter()
@@ -244,8 +252,8 @@ d3.csv("data/per_day.csv")
   ;
 }
 
-//['calc_stats','cumulative_total', 'per_day_of_week', 'per_subject', 'top_10']
-['calc_stats','top_10']
+['calc_stats','cumulative_total', 'per_day_of_week', 'per_subject', 'top_10']
+//['calc_stats','top_10']
   .forEach(function(chart) { window[chart](); })
   ;
 </script>
