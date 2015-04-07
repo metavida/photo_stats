@@ -42,6 +42,10 @@ $min_width: 600px;
   & > div.xaxis {
     position: relative;
 
+    &:only-child {
+      display: none;
+    }
+
     & > div {
       position: absolute;
       z-index: 4;
@@ -88,6 +92,14 @@ $min_width: 600px;
 }
 
 #top10_table {
+  & > div {
+    width: 400px;
+    float: left;
+  }
+  .col_1 {
+    display: block;
+    float: right;
+  }
   img {
     width: 200px;
   }
