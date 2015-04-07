@@ -3,12 +3,12 @@
 
 @font-face {
   font-family: 'Born';
-  src: url('/fonts/Born.eot');
-  src: url('/fonts/Born.eot') format('embedded-opentype'),
-       url('/fonts/Born.woff2') format('woff2'),
-       url('/fonts/Born.woff') format('woff'),
-       url('/fonts/Born.ttf') format('truetype'),
-       url('/fonts/Born.svg#Born') format('svg');
+  src: url('../fonts/Born.eot');
+  src: url('../fonts/Born.eot') format('embedded-opentype'),
+       url('../fonts/Born.woff2') format('woff2'),
+       url('../fonts/Born.woff') format('woff'),
+       url('../fonts/Born.ttf') format('truetype'),
+       url('../fonts/Born.svg#Born') format('svg');
 }
 
 body {

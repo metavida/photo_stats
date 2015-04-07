@@ -38,9 +38,6 @@ $min_width: 600px;
     .nvd3 .nv-legend {
       display: none;
     }
-    //.nvd3 .nv-area {
-    //  fill: #f00;
-    //}
   }
 
   & > div.xaxis {
@@ -75,7 +72,7 @@ $min_width: 600px;
     top: $chart_height - 40px;
     right: -45px;
     height: $axis_height;
-    background: 0px 0px no-repeat url('/images/cumulative.xaxis.v1.png');
+    background: 0px 0px no-repeat url('../images/cumulative.xaxis.v1.png');
     background-size: calc(100% - 50px) $axis_height;
   }
 }
@@ -106,7 +103,7 @@ $min_width: 600px;
     top: $chart_height - 45px;
     right: -50px;
     height: $axis_height;
-    background: 0px -5px no-repeat url('/images/dow.xaxis.v1.png');
+    background: 0px -5px no-repeat url('../images/dow.xaxis.v1.png');
     background-size: calc(100% - 65px) $axis_height;
   }
 }
