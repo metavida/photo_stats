@@ -27,6 +27,16 @@ $min_width: 600px;
   }
 }
 
+@mixin init-flexbox() {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+@mixin webkit-prefix($attr, $val) {
+  #{$attr}: $val;
+  -webkit-#{$attr}: $val;
+}
+
 .photo-line {
   svg {
     z-index: 5;
@@ -78,13 +88,13 @@ $min_width: 600px;
 }
 
 #even {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
+  @include init-flexbox();
+  @include webkit-prefix("flex-direction", row);
+  @include webkit-prefix("flex-wrap", wrap);
+  @include webkit-prefix("align-items", stretch);
 
   & > div {
-    flex: 1 1 auto;
+    @include webkit-prefix("flex", 1 1 auto);
   }
 }
 
@@ -114,13 +124,13 @@ $min_width: 600px;
 
 #top10_table {
   $cell_width: 250px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
+  @include init-flexbox();
+  @include webkit-prefix("flex-direction", row);
+  @include webkit-prefix("flex-wrap", wrap);
+  @include webkit-prefix("align-items", stretch);
 
   & > div {
-    flex: 1 1 auto;
+    @include webkit-prefix("flex", 1 1 auto);
     width: $cell_width;
     margin: 10px;
     padding: 10px;
@@ -159,7 +169,7 @@ $min_width: 600px;
     & > i {
       display: inline-block;
       font-style: normal;
-      transform: rotate(270deg);
+      @include webkit-prefix("transform", rotate(270deg));
     }
   }
 }
