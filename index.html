@@ -68,7 +68,7 @@
 
 var stats = {};
 function calc_stats() {
-d3.csv("data/per_day.csv")
+d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/per_day.csv")
   .row(function(d) {
     return {key: d['day'], value: parseInt(d['count'], 10) }
   })
@@ -89,7 +89,7 @@ d3.csv("data/per_day.csv")
 }
 
 function cumulative_total() {
-  d3.csv("data/cumulative_total.csv")
+  d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/cumulative_total.csv")
     .row(function(d) {
       return {key: d['day'], value: parseInt(d['count'], 10) }
     })
@@ -133,7 +133,7 @@ function cumulative_total() {
 }
 
 function per_day_of_week() {
-  d3.csv("data/per_day_of_week.csv")
+  d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/per_day_of_week.csv")
     .row(function(d) {
       return {key: d['day'], value: parseInt(d['count'], 10) }
     })
@@ -179,7 +179,7 @@ function per_day_of_week() {
 }
 
 function per_subject() {
-  d3.csv("data/per_subject.csv")
+  d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/per_subject.csv")
     .row(function(d) {
       return {key: d['subject'] || 'Both / Neither', value: parseInt(d['count'], 10) }
     })
@@ -210,7 +210,7 @@ function per_subject() {
 }
 
 function top_10() {
-  d3.csv("data/top_10.csv")
+  d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/top_10.csv")
     .row(function(d) {
       var date = d3.time.format('%d %b %Y')(new Date(d['day']));
       return {
@@ -260,7 +260,7 @@ function top_10() {
 }
 
 function no_photos() {
-  d3.csv("data/no_photos.csv")
+  d3.csv("https://dl.dropboxusercontent.com/u/422012/permanent/oneyeardata/no_photos.csv")
     .row(function(d) {
       return d3.time.format('%b %d')(new Date(d['date']));
     })

@@ -14,6 +14,10 @@ usage: photo_stats.rb directory
 USAGE
 end
 
+def load_yml(name, fallback=nil)
+  YAML.load_file(File.join(File.dirname(__FILE__), 'src', "#{name}.yml")) rescue fallback
+end
+
 class PhotoStats
   attr_accessor :photo_dir, :photo_stats, :options
 
@@ -120,7 +124,7 @@ class PhotoStats
   end
 
   def get_day(start_or_end)
-    @dates ||= YAML.load_file(File.join(File.dirname(__FILE__), 'data/dates.yml')) rescue {}
+    @dates ||= load_yml('dates', {})
     case start_or_end
     when :start
       Time.parse(@dates['start_day'])
@@ -245,7 +249,7 @@ class PhotoDetailGetter
 
   def get_subject(filename)
     name = filename.match(/([^\-]*\s+-\s+)([^ \.]+)/)[2] rescue ''
-    @known_subjects ||= YAML.load_file(File.join(File.dirname(__FILE__), 'data/subjects.yml')) rescue []
+    @known_subjects ||= load_yml('subjects', [])
     @known_subjects.include?(name) ?
       name : nil
   end
