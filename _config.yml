@@ -1,0 +1,6 @@
+---
+exclude:
+  - Gemfile*
+  - README*
+  - LICENSE*
+  - photo_stats.rb
