@@ -4,3 +4,4 @@ exclude:
   - README*
   - LICENSE*
   - photo_stats.rb
+  - src

@@ -111,6 +111,8 @@ class PhotoStats
   private
 
   def each_day_between(start_day, end_day)
+    return if start_day == end_day
+
     current_day = start_day
     while current_day <= end_day
       yield(current_day)
