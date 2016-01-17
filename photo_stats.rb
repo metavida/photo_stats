@@ -29,6 +29,10 @@ class PhotoStats
   # :no_top_10: Default true
   def initialize(photo_dir, options={})
     options[:no_top_10] = true unless options.has_key?(:no_top_10)
+
+    options[:year] = options[:year].to_i
+    options[:year] = 1 if options[:year] < 1
+
     @options = options
     @photo_details = PhotoDetailGetter.new(photo_dir, options).get_details
   end
@@ -143,7 +147,7 @@ class PhotoStats
 
   def report(filename, table, backup=false)
     path = File.expand_path(File.join(
-      File.dirname(__FILE__), 'data', "#{filename}.csv"
+      File.dirname(__FILE__), 'data', "year_#{options[:year]}", "#{filename}.csv"
     ))
     FileUtils.mkdir_p(File.dirname(path))
 
