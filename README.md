@@ -1,6 +1,6 @@
-# First Year Photo Stats
+# First Years Photo Stats
 
-Doing some light-weight analysis of the photos I've taken over first year of our boys' lives.
+Doing some light-weight analysis of the photos I've taken over first years of our boys' lives.
 
 ## Usage
 
