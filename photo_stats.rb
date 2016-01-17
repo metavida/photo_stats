@@ -9,8 +9,12 @@ def usage
   <<-USAGE
 Compiles (mostly date/time-based) statistics about photos/videos in a folder.
 
-usage: photo_stats.rb directory
+Currently we rely on all file names beginning with "YYYY-MM-DD HH.MM.SS"
 
+Usage:
+    bundle exec photo_stats.rb directory
+
+Options:
 USAGE
 end
 
@@ -303,7 +307,7 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = usage
 
-  opts.on("-10", "--top10", "Generate a new top_10.csv") do |ten|
+  opts.on("-t", "--top10", "Generate a new top_10.csv") do |ten|
     options[:do_top_10] = !!ten
   end
 
