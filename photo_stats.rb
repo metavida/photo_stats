@@ -26,7 +26,7 @@ class PhotoStats
   def initialize(photo_dir, options={})
     options[:no_top_10] = true unless options.has_key?(:no_top_10)
     @options = options
-    @photo_details = PhotoDetailGetter.new(photo_dir).get_details
+    @photo_details = PhotoDetailGetter.new(photo_dir, options).get_details
   end
 
   def days_with_no_photos
@@ -195,19 +195,53 @@ end
 class PhotoDetailGetter
   include Enumerable
 
-  attr_accessor :photo_dir, :photo_details
+  attr_accessor :photo_dir, :photo_details, :date_range
 
-  def initialize(photo_dir)
+  def initialize(photo_dir, options = {})
     @photo_dir = File.expand_path(photo_dir)
     ensure_dir_exists
+
+    year = options[:year].to_i
+    year = 1 if options[:year] < 1
+
+    @birthday = options[:birthday] if options[:birthday]
+
+    if year == 1
+      @date_range = (
+        # Allow photos from the week leading up to birth
+        birthday - 7*24*60*60 ...
+        Time.new(birthday.year + 1, birthday.month, birthday.day+1)
+      )
+    else
+      @date_range = (
+        Time.new(birthday.year + year - 1, birthday.month, birthday.day) ...
+        Time.new(birthday.year + year, birthday.month, birthday.day+1)
+      )
+    end
 
     @photo_details = []
     @errors = []
   end
 
+  def birthday
+    return @birthday if @birthday
+
+    each do |file_path|
+      details = split_path(file_path)
+      if details[:taken_at] && (!@birthday || @birthday > details[:taken_at])
+        @birthday = details[:taken_at]
+      end
+    end
+
+    @birthday
+  end
+
   def get_details
     each do |file_path|
-      @photo_details << split_path(file_path)
+      details = split_path(file_path)
+      if details[:taken_at] && details[:taken_at] >= date_range.first && details[:taken_at] < date_range.last
+        @photo_details << details
+      end
     end
 
     unless @errors.empty?
@@ -272,11 +306,23 @@ OptionParser.new do |opts|
   opts.on("-10", "--top10", "Generate a new top_10.csv") do |ten|
     options[:do_top_10] = !!ten
   end
+
+  opts.on("-bDATE", "--birthday=DATE", "Their birthday") do |birthday|
+    options[:birthday] = Time.parse(birthday.to_s) rescue nil
+  end
+
+  opts.on("-yYEAR", "--year=YEAR", "Generate data for a specific year of life (e.g. 1 == first 365 days of life)") do |year|
+    options[:year] = year.to_i
+  end
 end.parse!
 
 case ARGV.size
 when 1
-  stats = PhotoStats.new(ARGV[0], :no_top_10=>!options[:do_top_10])
+  stats = PhotoStats.new(ARGV[0],
+                          no_top_10: !options[:do_top_10],
+                          birthday:   options[:birthday],
+                          year:       options[:year]
+                        )
   stats.photos_per_subject
   stats.photos_per_day
   stats.photos_per_day_of_week
