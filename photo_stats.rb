@@ -218,12 +218,12 @@ class PhotoDetailGetter
       @date_range = (
         # Allow photos from the week leading up to birth
         birthday - 7*24*60*60 ...
-        Time.new(birthday.year + 1, birthday.month, birthday.day+1)
+        Time.new(birthday.year + 1, birthday.month, birthday.day )
       )
     else
       @date_range = (
-        Time.new(birthday.year + year - 1, birthday.month, birthday.day) ...
-        Time.new(birthday.year + year, birthday.month, birthday.day+1)
+        Time.new(birthday.year + year - 1, birthday.month, birthday.day) ..
+        Time.new(birthday.year + year, birthday.month, birthday.day )
       )
     end
 
