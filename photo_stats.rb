@@ -42,8 +42,7 @@ class PhotoStats
     days = by_taken.keys.sort
 
     first_day = days.first
-    # Either the last day listed or the end day (whichever is earlier)
-    last_day = [days.last, get_day(:end)].min
+    last_day = days.last
 
     no_photos = ['date']
     each_day_between(first_day, last_day) do |current_day|
@@ -65,7 +64,7 @@ class PhotoStats
       cumulative_total << [day, prev_total + photos.count]
     end
 
-    each_day_between(cumulative_total.last.first, get_day(:end)) do |current_day|
+    each_day_between(cumulative_total.last.first, per_day_list.last.first) do |current_day|
       prev = cumulative_total.last
       prev_day = prev.first
       prev_total = prev.last rescue 0
@@ -130,18 +129,6 @@ class PhotoStats
       next_day ||= Time.new(current_day.year + 1, 1, 1) rescue nil
       fail if next_day.nil?
       current_day = next_day
-    end
-  end
-
-  def get_day(start_or_end)
-    @dates ||= load_yml('dates', {})
-    case start_or_end
-    when :start
-      Time.parse(@dates['start_day'])
-    when :end
-      Time.parse(@dates['end_day'])
-    else
-      fail ArgumentError.new("Expected :start or :end, but got #{start_or_end.inspect}")
     end
   end
 
