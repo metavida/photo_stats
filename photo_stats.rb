@@ -12,7 +12,7 @@ Compiles (mostly date/time-based) statistics about photos/videos in a folder.
 Currently we rely on all file names beginning with "YYYY-MM-DD HH.MM.SS"
 
 Usage:
-    bundle exec photo_stats.rb directory
+    bundle exec ./photo_stats.rb [options] <directory>
 
 Options:
 USAGE
@@ -218,6 +218,9 @@ class PhotoDetailGetter
     @errors = []
   end
 
+  # Return the cached @birthday value
+  # or calculate and cache the @birthday
+  # as the date of the oldest file in the photo_dir.
   def birthday
     return @birthday if @birthday
 
