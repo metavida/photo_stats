@@ -66,7 +66,7 @@ class PhotoStats
 
     each_day_between(cumulative_total.last.first, per_day_list.last.first) do |current_day|
       prev = cumulative_total.last
-      prev_day = prev.first
+      #prev_day = prev.first
       prev_total = prev.last rescue 0
       cumulative_total << [current_day, prev_total+1]
     end
