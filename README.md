@@ -26,6 +26,10 @@ To get stats for the 2nd year of life (days 366-730) use the `--year=` option.
 $ bundle exec ./photo_stats.rb --birthday='YYYY-MM-DD' --year=2 ~/Dropbox/Photos/Family\ Photos/
 ````
 
+## End Result
+
+I get some nice CSV files that I can make pretty with [D3.js](https://d3js.org/) and CSS: http://oneyear.wrightkuhns.com/
+
 ## Licenses
 
 Files in the project use several licenses. See [LICENSE.txt] for details.
